@@ -17,21 +17,37 @@
 
 package com.example.android.marsrealestate.network
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.Deferred
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 
 private const val BASE_URL = "https://mars.udacity.com/" // for getting response from the JSON and returning it as a string
+
+private val moshi = Moshi.Builder()
+    .add(KotlinJsonAdapterFactory())
+    .build()
+
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(ScalarsConverterFactory.create())
+    //.addConverterFactory(ScalarsConverterFactory.create())
+    .addConverterFactory(MoshiConverterFactory.create(moshi)) // let Retrofit use Moshi convert JSON response into a Kt objects
+    .addCallAdapterFactory(CoroutineCallAdapterFactory()) // let replace the call and get properties
+
     .baseUrl(BASE_URL)// specifying the root-path
     .build() // to create a retrofit object
 
 interface MarsApiService {
-    @GET("realestate") // specifying an end point
+    @GET("realestate")
     fun getProperties():
-            Call<String> // is used to start a request
+            Deferred<List<MarsProperty>>
+//Call<List<MarsProperty>> //return a List instead of Str
+//    @GET("realestate") // specifying an end point
+//    fun getProperties():
+//            Call<String> // is used to start a request
 }
 
 object MarsApi {
